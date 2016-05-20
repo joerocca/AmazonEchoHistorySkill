@@ -71,10 +71,10 @@ def on_intent(intent_request, session):
     
     if intent_name == "TodayInHistoryIntent":
         return get_today_in_history()
-    elif intent_name == "TodayInHistoryWithDateIntent":
+    elif intent_name == "HistoryWithDateIntent":
         return get_today_in_history_for_date(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
-        return get_welcome_response()
+        return get_help_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
@@ -108,6 +108,29 @@ def get_welcome_response():
     reprompt_text = "Ask for a historical fact by saying, " \
                     "What happened today in history."
     should_end_session = False
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
+        
+def get_help_response():
+    """ If we wanted to initialize the session to have some attributes we could
+    add those here
+    """
+
+    session_attributes = {}
+    card_title = "Help"
+    speech_output = "Here are some things you can say: " \
+                    "What happened today,  " \
+                    "What happened yesterday,  " \
+                    "What happened on May 16th.  " \
+                    "You can also say, stop, if you're done. " \
+                    "So, how can I help?"
+                    
+                    
+    # If the user either does not reply to the welcome message or says something
+    # that is not understood, they will be prompted again with this text.
+    reprompt_text = speech_output
+    should_end_session = False
+    
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
@@ -179,35 +202,35 @@ def build_response(session_attributes, speechlet_response):
 # --------------- HISTORY FACT FETCHERS ----------------------
 
 def fetchFactForToday():
-	conn = httplib.HTTPConnection('history.muffinlabs.com')
-	conn.request("GET", "/date")
-	r1 = conn.getresponse()
-	facts = json.loads(r1.read())['data']['Events']
-	count = len(facts)
-	i = randint(0, count)
-	factObject = facts[i]
-	factText = factObject['text']
-	factYear = factObject['year']
-	formattedFact = 'Today in ' + factYear + ', ' + factText
-	print (factYear)
-	print (factText)
-	print (formattedFact)
-	return formattedFact
+    conn = httplib.HTTPConnection('history.muffinlabs.com')
+    conn.request("GET", "/date")
+    r1 = conn.getresponse()
+    facts = json.loads(r1.read())['data']['Events']
+    count = len(facts)
+    i = randint(0, count)
+    factObject = facts[i]
+    factText = factObject['text']
+    factYear = factObject['year']
+    formattedFact = 'Today in ' + factYear + ', ' + factText
+    print (factYear)
+    print (factText)
+    print (formattedFact)
+    return formattedFact
 
 def fetchFactForDay(month, day):
-	conn = httplib.HTTPConnection('history.muffinlabs.com')
-	conn.request("GET", "/date/" + str(month) + "/" + str(day))
-	r1 = conn.getresponse()
-	facts = json.loads(r1.read())['data']['Events']
-	count = len(facts) - 1
-	i = randint(0, count)
-	factObject = facts[i]
-	factText = factObject['text']
-	factYear = factObject['year']
-	formattedFact = 'On ' + calendar.month_name[month] + ' ' + str(day) + ' in ' + factYear + ', ' + factText
-	print (factYear)
-	print (factText)
-	print (formattedFact)
-	return formattedFact
+    conn = httplib.HTTPConnection('history.muffinlabs.com')
+    conn.request("GET", "/date/" + str(month) + "/" + str(day))
+    r1 = conn.getresponse()
+    facts = json.loads(r1.read())['data']['Events']
+    count = len(facts) - 1
+    i = randint(0, count)
+    factObject = facts[i]
+    factText = factObject['text']
+    factYear = factObject['year']
+    formattedFact = 'On ' + calendar.month_name[month] + ' ' + str(day) + ' in ' + factYear + ', ' + factText
+    print (factYear)
+    print (factText)
+    print (formattedFact)
+    return formattedFact
 
     

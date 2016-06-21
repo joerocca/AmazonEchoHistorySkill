@@ -120,7 +120,6 @@ def get_help_response():
     card_title = "Help"
     speech_output = "Here are some things you can say: " \
                     "What happened today,  " \
-                    "What happened yesterday,  " \
                     "What happened on May 16th.  " \
                     "You can also say, stop, if you're done. " \
                     "So, how can I help?"
@@ -157,14 +156,26 @@ def get_today_in_history():
         
 def get_today_in_history_for_date(intent, session):
     date = intent['slots']['DATE']['value']
-    dt = datetime.strptime(date, '%Y-%m-%d')
-    month = dt.month
-    day = dt.day
-    session_attributes = {}
-    reprompt_text = None
-    fact = fetchFactForDay(month, day)
-    should_end_session = True
     
+    try:
+        dt = datetime.strptime(date, '%Y-%m-%d')
+        month = dt.month
+        day = dt.day
+        session_attributes = {}
+        reprompt_text = None
+        fact = fetchFactForDay(month, day)
+        should_end_session = True
+    except:
+        session_attributes = {}
+        reprompt_text = None
+        fact = "I am having a hard time understanding you.  " \
+               "Here are some things you can say:  " \
+               "What happened today,  " \
+               "What happened on May 16th.  " \
+               "You can also say, stop, if you're done. " \
+               "So, how can I help?"
+        should_end_session = False
+        
     return build_response(session_attributes, build_speechlet_response(
         'History', fact, reprompt_text, should_end_session))
 
@@ -202,35 +213,35 @@ def build_response(session_attributes, speechlet_response):
 # --------------- HISTORY FACT FETCHERS ----------------------
 
 def fetchFactForToday():
-    conn = httplib.HTTPConnection('history.muffinlabs.com')
-    conn.request("GET", "/date")
-    r1 = conn.getresponse()
-    facts = json.loads(r1.read())['data']['Events']
-    count = len(facts)
-    i = randint(0, count)
-    factObject = facts[i]
-    factText = factObject['text']
-    factYear = factObject['year']
-    formattedFact = 'Today in ' + factYear + ', ' + factText
-    print (factYear)
-    print (factText)
-    print (formattedFact)
-    return formattedFact
+	conn = httplib.HTTPConnection('history.muffinlabs.com')
+	conn.request("GET", "/date")
+	r1 = conn.getresponse()
+	facts = json.loads(r1.read())['data']['Events']
+	count = len(facts)
+	i = randint(0, count)
+	factObject = facts[i]
+	factText = factObject['text']
+	factYear = factObject['year']
+	formattedFact = 'Today in ' + factYear + ', ' + factText
+	print (factYear)
+	print (factText)
+	print (formattedFact)
+	return formattedFact
 
 def fetchFactForDay(month, day):
-    conn = httplib.HTTPConnection('history.muffinlabs.com')
-    conn.request("GET", "/date/" + str(month) + "/" + str(day))
-    r1 = conn.getresponse()
-    facts = json.loads(r1.read())['data']['Events']
-    count = len(facts) - 1
-    i = randint(0, count)
-    factObject = facts[i]
-    factText = factObject['text']
-    factYear = factObject['year']
-    formattedFact = 'On ' + calendar.month_name[month] + ' ' + str(day) + ' in ' + factYear + ', ' + factText
-    print (factYear)
-    print (factText)
-    print (formattedFact)
-    return formattedFact
+	conn = httplib.HTTPConnection('history.muffinlabs.com')
+	conn.request("GET", "/date/" + str(month) + "/" + str(day))
+	r1 = conn.getresponse()
+	facts = json.loads(r1.read())['data']['Events']
+	count = len(facts) - 1
+	i = randint(0, count)
+	factObject = facts[i]
+	factText = factObject['text']
+	factYear = factObject['year']
+	formattedFact = 'On ' + calendar.month_name[month] + ' ' + str(day) + ' in ' + factYear + ', ' + factText
+	print (factYear)
+	print (factText)
+	print (formattedFact)
+	return formattedFact
 
     

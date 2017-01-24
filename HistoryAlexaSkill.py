@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     function.
     """
     if (event['session']['application']['applicationId'] !=
-            "amzn1.echo-sdk-ams.app.31a363aa-6d34-48bc-bb56-1064a16a14c8"):
+            "REPLACE WITH APP ID"):
         raise ValueError("Invalid Application ID")
 
     if event['session']['new']:
@@ -243,5 +243,3 @@ def fetchFactForDay(month, day):
 	print (factText)
 	print (formattedFact)
 	return formattedFact
-
-    
